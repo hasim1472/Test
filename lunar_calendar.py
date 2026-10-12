@@ -47,8 +47,27 @@ class LunarCalendarApp:
         self.title_label.pack(side="left", expand=True)
         tk.Button(top, text="다음 달 ▶", command=lambda: self.shift_month(1)).pack(side="right", padx=16)
 
+        # 같은 연도의 월을 즉시 선택하는 버튼
+        self.month_bar = tk.Frame(root, bg="#ffffff", padx=12, pady=6)
+        self.month_bar.pack(fill="x")
+        self.month_buttons = []
+        for month in range(1, 13):
+            button = tk.Button(
+                self.month_bar, text=f"{month}월",
+                font=("맑은 고딕", 10), padx=0, pady=6, relief="flat",
+                command=lambda target=month: self.select_month(target),
+            )
+            button.grid(row=0, column=month - 1, sticky="ew", padx=2)
+            self.month_bar.grid_columnconfigure(month - 1, weight=1, uniform="months")
+            self.month_buttons.append(button)
+
         self.grid_frame = tk.Frame(root, bg="#dfe4ea")
         self.grid_frame.pack(expand=True, fill="both", padx=12, pady=12)
+        self.draw()
+
+    def select_month(self, month: int) -> None:
+        """표시 중인 연도에서 지정된 월로 바로 이동합니다."""
+        self.month = month
         self.draw()
 
     def shift_month(self, delta: int) -> None:
@@ -62,6 +81,15 @@ class LunarCalendarApp:
 
     def draw(self) -> None:
         self.title_label.config(text=f"{self.year}년 {self.month}월")
+        for index, button in enumerate(self.month_buttons, start=1):
+            active = index == self.month
+            button.config(
+                bg="#2862a6" if active else "#edf1f5",
+                fg="#ffffff" if active else "#222222",
+                activebackground="#1f4f86",
+                activeforeground="#ffffff",
+                font=("맑은 고딕", 10, "bold" if active else "normal"),
+            )
         for child in self.grid_frame.winfo_children():
             child.destroy()
 
